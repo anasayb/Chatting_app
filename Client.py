@@ -1,20 +1,22 @@
 import socket
-import threading
-import time
 
-
+# Inizlizing the server info
 SERVER_PORT = 6060
 SERVER_ADDRESS = "192.168.1.185"
 ADDRESS = (SERVER_ADDRESS, SERVER_PORT)
 
+# Header is used to send the size of the message before sending the message
 HEADER_SIZE = 64
 FORMAT = "utf-8"
 
+# Disconnect message
 DISCONNECT = "!DISCONNECT!"
 
+# Creating the client socket to the server
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDRESS)
 
+# This method is used to send any text massge to the server
 def send(message):
     msg_encoded = message.encode(FORMAT)
     msg_length = len(msg_encoded)
