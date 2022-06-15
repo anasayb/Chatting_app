@@ -2,19 +2,25 @@ import socket
 import threading
 
 
+# Inizlizing the server info
 PORT = 6060
-SERVER_ADDRESS = socket.gethostbyname(socket.gethostname())
+SERVER_ADDRESS = socket.gethostbyname(socket.gethostname())   # could result in probom when having multiple interfaces
 ADDRESS = (SERVER_ADDRESS, PORT)
 
+# Making the socket with the server info
 SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 SERVER.bind(ADDRESS)
 
+# Header is used to send the size of the message before sending the message
 HEADER_SIZE = 64
 FORMAT = "utf-8"
 
+# Disconnect message
 DISCONNECT = "!DISCONNECT!"
 
+# This method handle the connection after accepting it in a seperate thread 
 def client_handle(connection, clientAdress):
+    client_Name, _, client_Adress = socket.gethostbyaddr(clientAdress[0])
     print(f"[NEW COONNECTION] {clientAdress} connected.")
     
     connected = True
@@ -27,11 +33,11 @@ def client_handle(connection, clientAdress):
             if msg == DISCONNECT:
                 connected = False
 
-            print(f"[{clientAdress}] {msg}")
+            print(f"[{client_Name}] {msg}")
     
     connection.close()
 
-
+# This methodis used to start the lestining in the server
 def start():
     SERVER.listen()
     print(f"Listenning on {SERVER_ADDRESS} ...")
