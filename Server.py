@@ -1,6 +1,7 @@
+# TODO: make the server send resived messages from one user to the other as a group chat
+
 import socket
 import threading
-
 
 # Inizlizing the server info
 PORT = 6060

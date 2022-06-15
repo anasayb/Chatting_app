@@ -1,3 +1,7 @@
+# TODO: take input form the user then send
+# TODO: allow the user to decide when to stop the connection
+
+
 import socket
 
 # Inizlizing the server info
