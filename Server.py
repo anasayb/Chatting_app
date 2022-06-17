@@ -3,43 +3,50 @@
 import socket
 import threading
 
-# Inizlizing the server info
-PORT = 6060
-SERVER_ADDRESS = socket.gethostbyname(socket.gethostname())   # could result in probom when having multiple interfaces
-ADDRESS = (SERVER_ADDRESS, PORT)
+# This method is used to find the ip address of the server
+def Find_IP_addess():
+    st = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        st.connect(('8.8.8.8',53))
+        IP = st.getsockname()[0]
+    except Exception:
+        IP = "127.0.0.1"
+    finally:
+        st.close()
+    return IP
 
-# Making the socket with the server info
-SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-SERVER.bind(ADDRESS)
-
-# Header is used to send the size of the message before sending the message
-HEADER_SIZE = 64
-FORMAT = "utf-8"
-
-# Disconnect message
-DISCONNECT = "!DISCONNECT!"
+# This method is used to inizilize the information of the client after establishing the connection
+def inizilizeClient(connection):
+    info ={}    
+    msg_length = connection.recv(HEADER_SIZE).decode(FORMAT)
+    if msg_length:
+        size = int(msg_length)
+        msg = connection.recv(size).decode(FORMAT)
+        info["name"] = msg         
+    return info
 
 # This method handle the connection after accepting it in a seperate thread 
 def client_handle(connection, clientAdress):
-    client_Name, _, client_Adress = socket.gethostbyaddr(clientAdress[0])
+
+    info = inizilizeClient(connection)    
     print(f"[NEW COONNECTION] {clientAdress} connected.")
-    
+
     connected = True
     while connected:
         msg_length = connection.recv(HEADER_SIZE).decode(FORMAT)
         if msg_length:
             size = int(msg_length)
-            msg = connection.recv(size).decode(FORMAT)
-            
+            msg = connection.recv(size).decode(FORMAT)         
             if msg == DISCONNECT:
                 connected = False
-
-            print(f"[{client_Name}] {msg}")
+                print(f"[DISCONNECT] {info['name']} has disconnected!")
+            else:
+                print(f"[{info['name']}] {msg}")
     
     connection.close()
 
 # This methodis used to start the lestining in the server
-def start():
+def start(SERVER):
     SERVER.listen()
     print(f"Listenning on {SERVER_ADDRESS} ...")
     con = 0
@@ -51,8 +58,26 @@ def start():
         con += 1
         if con == 3:
             break
+       
+
+# Making the socket
+SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Inizlizing the server info
+SERVER_ADDRESS = Find_IP_addess()
+PORT = 6060
+ADDRESS = (SERVER_ADDRESS, PORT)
+SERVER.bind(ADDRESS)
+
+# Header is used to send the size of the message before sending the message
+HEADER_SIZE = 64
+FORMAT = "utf-8"
+
+# Disconnect message
+DISCONNECT = "!DISCONNECT!"
 
 
 print("[STARTING] Server is starting...")
-start()
+start(SERVER)
 print("[STOPING] The server is shutting down")
+SERVER.close()
