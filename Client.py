@@ -1,6 +1,6 @@
 # TODO: make the program only ask the user for the name in the first time running the program
+# TODO: there is a problom that when ever recving a message the message will be displayed after the input promot, there are solutions but it requires the some sort of GUI implementaion (curses, tinker)
 
-from pydoc import cli
 import socket
 import threading
 
