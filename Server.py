@@ -1,4 +1,3 @@
-# TODO: make the server send resived messages from one user to the other as a group chat
 
 import socket
 import threading
@@ -30,6 +29,7 @@ def client_handle(connection, clientAdress):
 
     info = inizilizeClient(connection)    
     print(f"[NEW COONNECTION] {clientAdress} connected.")
+    clientsConenctions.append(connection)
 
     connected = True
     while connected:
@@ -40,10 +40,32 @@ def client_handle(connection, clientAdress):
             if msg == DISCONNECT:
                 connected = False
                 print(f"[DISCONNECT] {info['name']} has disconnected!")
+                msg = f"{info['name']} has disconnected!"
+                for clientConnection in clientsConenctions:
+                    if clientConnection is connection:
+                        send(connection, DISCONNECT)
+                    else:
+                        send(clientConnection, '\n'+msg)
+                clientsConenctions.remove(connection)
             else:
-                print(f"[{info['name']}] {msg}")
+                msg = f"[{info['name']}] {msg}"
+                print(msg)
+                for clientConnection in clientsConenctions:
+                    if clientConnection is connection:
+                        continue
+                    else:
+                        send(clientConnection, '\n'+msg)
     
     connection.close()
+
+# This method is used to send any text massge to the server
+def send(clientCon ,message):
+    msg_encoded = message.encode(FORMAT)
+    msg_length = len(msg_encoded)
+    length_encoded = str(msg_length).encode(FORMAT)
+    length_encoded += b' ' * ( HEADER_SIZE - len(length_encoded))
+    clientCon.send(length_encoded)
+    clientCon.send(msg_encoded)
 
 # This methodis used to start the lestining in the server
 def start(SERVER):
@@ -76,6 +98,8 @@ FORMAT = "utf-8"
 # Disconnect message
 DISCONNECT = "!DISCONNECT!"
 
+# list of all connected clients
+clientsConenctions = []
 
 print("[STARTING] Server is starting...")
 start(SERVER)

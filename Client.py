@@ -1,6 +1,8 @@
 # TODO: make the program only ask the user for the name in the first time running the program
 
+from pydoc import cli
 import socket
+import threading
 
 # Inizlizing the server info
 SERVER_PORT = 6060
@@ -16,7 +18,11 @@ DISCONNECT = "!DISCONNECT!"
 
 # Creating the client socket to the server
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(ADDRESS)
+try:
+    client.connect(ADDRESS)
+except Exception:
+    print("Sorry the server is not Online (Sadge)\nPlease try again later.")
+    exit()
 
 # This method is used to send any text massge to the server
 def send(message):
@@ -27,10 +33,29 @@ def send(message):
     client.send(length_encoded)
     client.send(msg_encoded)
 
+# This method is used to recive other clients messge from the server
+def recive():
+    while True:
+        msg_length = client.recv(HEADER_SIZE).decode(FORMAT)
+        if msg_length:
+            msg_length = int(msg_length)
+            msg = client.recv(msg_length).decode(FORMAT)
+            if msg == DISCONNECT:
+                print("you have been disconnected.")
+                return
+            else:
+                print(msg)
+        
+
+
+
 # This method is used to inizilize the information between client and server after creating the connection
 def inizilize():
     name = input("Please choose a name: ")
     send(name)
+    thread = threading.Thread(target=recive)
+    thread.start()
+
 
 inizilize()
 msg = ""
