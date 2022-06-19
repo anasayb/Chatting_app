@@ -1,3 +1,4 @@
+#TODO: optinal make a login page
 
 import socket
 import threading

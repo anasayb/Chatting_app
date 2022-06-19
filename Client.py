@@ -1,8 +1,9 @@
-# TODO: make the program only ask the user for the name in the first time running the program
 # TODO: there is a problom that when ever recving a message the message will be displayed after the input promot, there are solutions but it requires the some sort of GUI implementaion (curses, tinker)
+# TODO: use diffrente colors for diffrent users
 
 import socket
 import threading
+from colorama import Fore, Style
 
 # Inizlizing the server info
 SERVER_PORT = 6060
@@ -48,11 +49,16 @@ def recive():
         
 
 
-
 # This method is used to inizilize the information between client and server after creating the connection
 def inizilize():
-    name = input("Please choose a name: ")
-    send(name)
+    try:
+        f = open("User_Info.txt")
+        name = f.read()
+    except FileNotFoundError:
+        f = open("User_Info.txt", 'x')
+        name = input("Please choose a name: ")
+        f.write(name)       
+    send(name) 
     thread = threading.Thread(target=recive)
     thread.start()
 
